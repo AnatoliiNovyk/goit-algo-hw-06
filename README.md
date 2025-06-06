@@ -38,7 +38,7 @@ plt.title("Транспортна мережа міст України")
 plt.show()
 ```
 
-![](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png)
+![](https://github.com/AnatoliiNovyk/goit-algo-hw-06/blob/main/images/graph_citys.png)
 
 
 **Аналіз основних характеристик графа**
@@ -223,7 +223,7 @@ plt.show()
 #### Висновки:
 **Алгоритм Дейкстри успішно знаходить найкоротший шлях у зваженому графі, враховуючи "вартість" кожного ребра (у нашому випадку — відстань).  Цікаво відзначити, що шлях до Дніпра через Київ та Черкаси (1094 км) виявився коротшим, ніж шлях через Полтаву (1169 км), що демонструє здатність алгоритму знаходити нетривіальні оптимальні маршрути.**
 
-![](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png)
+![](https://github.com/AnatoliiNovyk/goit-algo-hw-06/blob/main/images/graph_citys_3.png)
 
 ------------
 
