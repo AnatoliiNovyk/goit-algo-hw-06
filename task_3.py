@@ -1,36 +1,63 @@
-# Додавання ваг до ребер (відстані в км)
-weighted_edges = [
-    ("Київ", "Вінниця", {'weight': 267}), ("Київ", "Черкаси", {'weight': 190}), ("Київ", "Полтава", {'weight': 342}),
-    ("Вінниця", "Львів", {'weight': 365}), ("Вінниця", "Одеса", {'weight': 442}),
-    ("Одеса", "Черкаси", {'weight': 447}), ("Одеса", "Кривий Ріг", {'weight': 294}),
-    ("Черкаси", "Полтава", {'weight': 270}), ("Черкаси", "Дніпро", {'weight': 272}),
-    ("Полтава", "Харків", {'weight': 143}), ("Полтава", "Дніпро", {'weight': 195}),
-    ("Дніпро", "Харків", {'weight': 218}), ("Дніпро", "Запоріжжя", {'weight': 82}), ("Дніпро", "Кривий Ріг", {'weight': 150}),
-    ("Запоріжжя", "Кривий Ріг", {'weight': 165})
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def dijkstra_manual(graph_dict, start_node):
+    """
+    Реалізація алгоритму Дейкстри для пошуку найкоротших шляхів.
+    """
+    distances = {node: float('infinity') for node in graph_dict}
+    distances[start_node] = 0
+    priority_queue = [(0, start_node)]
+
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+        if current_distance > distances[current_node]:
+            continue
+        for neighbor, edge_data in graph_dict[current_node].items():
+            weight = edge_data.get('weight', 1)
+            distance = current_distance + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+    return distances
+
+# --- Основна частина програми для Завдання 3 ---
+
+# 1. Створення графа (який був розроблений у Завданні 1)
+G = nx.Graph()
+cities = ["Київ", "Львів", "Одеса", "Харків", "Дніпро", "Вінниця", "Ужгород", "Чернівці", "Херсон", "Запоріжжя"]
+G.add_nodes_from(cities)
+
+# 2. Додавання ребер з РЕАЛЬНИМИ вагами (приблизні відстані в км)
+print("Додавання реальних ваг до ребер графа (відстані в км)...")
+real_distances = [
+    ("Київ", "Львів", 540), ("Київ", "Харків", 480), ("Київ", "Одеса", 475), 
+    ("Київ", "Дніпро", 477), ("Київ", "Вінниця", 270),
+    ("Львів", "Вінниця", 360), ("Львів", "Ужгород", 270), ("Львів", "Чернівці", 280),
+    ("Одеса", "Дніпро", 450), ("Одеса", "Херсон", 200),
+    ("Харків", "Дніпро", 220), ("Харків", "Запоріжжя", 300),
+    ("Дніпро", "Запоріжжя", 85), ("Дніпро", "Херсон", 325),
+    ("Вінниця", "Чернівці", 285)
 ]
+G.add_weighted_edges_from(real_distances)
 
-# Створення нового графа з вагами
-G_weighted = nx.Graph()
-G_weighted.add_nodes_from(cities)
-G_weighted.add_edges_from(weighted_edges)
+# 3. Виконання алгоритму Дейкстри
+print("\n--- Результати роботи алгоритму Дейкстри для всіх вершин ---")
+graph_as_dict = nx.to_dict_of_dicts(G)
 
-# Пошук найкоротших шляхів від Львова до всіх інших міст за допомогою алгоритму Дейкстри
-start_city = "Львів"
-shortest_paths = nx.single_source_dijkstra_path(G_weighted, source=start_city)
-shortest_path_lengths = nx.single_source_dijkstra_path_length(G_weighted, source=start_city)
+for start_node in G.nodes():
+    shortest_distances = dijkstra_manual(graph_as_dict, start_node)
+    print(f"\nНайкоротші шляхи від '{start_node}':")
+    for node, distance in sorted(shortest_distances.items()):
+        print(f"  - до '{node}': {distance} км")
 
-print(f"Найкоротші шляхи від міста {start_city}:\n")
-for city, path in shortest_paths.items():
-    length = shortest_path_lengths[city]
-    print(f"До міста {city}:")
-    print(f"  - Шлях: {' -> '.join(path)}")
-    print(f"  - Відстань: {length} км\n")
-
-# Візуалізація зваженого графа
+# 4. Візуалізація фінального зваженого графа
+print("\nВізуалізація зваженого графа з реальними відстанями...")
+pos = nx.spring_layout(G, seed=42)
 plt.figure(figsize=(12, 10))
-pos = nx.spring_layout(G_weighted, seed=42)
-labels = nx.get_edge_attributes(G_weighted, 'weight')
-nx.draw(G_weighted, pos, with_labels=True, node_size=2500, node_color='lightgreen', font_size=12, font_weight='bold')
-nx.draw_networkx_edge_labels(G_weighted, pos, edge_labels=labels)
-plt.title("Зважена транспортна мережа міст України (відстані в км)")
+nx.draw(G, pos, with_labels=True, node_color='lightgreen', node_size=2500, font_size=10, font_weight='bold')
+edge_labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
+plt.title("Завдання 3: Модель транспортної мережі України (з реальними відстанями)")
 plt.show()
